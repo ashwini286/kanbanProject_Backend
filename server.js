@@ -18,7 +18,7 @@ app.use(express.json());
 const allowedOrigins = ["*"];
 app.use(cors({
     // origin:  allowedOrigins, // Allow requests from frontend
-    origin: "http://localhost:3001", // Allow requests from frontend
+    origin: "http://localhost:3000", // Allow requests from frontend
     methods: "GET,POST,PUT,DELETE",
     credentials: true
 }));
