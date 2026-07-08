@@ -35,3 +35,12 @@ export const deleteTask = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+export const reorderTasks = async (req, res) => {
+    try {
+        const response = await taskService.reorderTasks(req.body.tasks);
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};

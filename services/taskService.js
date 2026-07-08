@@ -7,7 +7,7 @@ const createTask = async (taskData) => {
 };
 
 const getTasks = async (boardId) => {
-    const tasks = await Task.find({ board: boardId });
+    const tasks = await Task.find({ board: boardId }).sort({ position: 1 });
     return { status: 200, data: tasks };
 };
 
@@ -21,4 +21,15 @@ const deleteTask = async (taskId) => {
     return { status: 200, data: { message: "Task deleted" } };
 };
 
-export default { createTask, getTasks, updateTask, deleteTask };
+const reorderTasks = async (tasksData) => {
+    const bulkOps = tasksData.map(task => ({
+        updateOne: {
+            filter: { _id: task._id },
+            update: { $set: { position: task.position, board: task.board } }
+        }
+    }));
+    await Task.bulkWrite(bulkOps);
+    return { status: 200, data: { message: "Tasks reordered successfully" } };
+};
+
+export default { createTask, getTasks, updateTask, deleteTask, reorderTasks };

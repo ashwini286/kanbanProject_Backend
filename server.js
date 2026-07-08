@@ -7,6 +7,8 @@ import taskRoute from "./routes/taskRoutes.js";
 import { authMiddleware } from "./middlewares/authMiddleware.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import http from "http";
+import { Server } from "socket.io";
 
 dotenv.config();
 
@@ -17,6 +19,7 @@ app.use(express.json());
 
 const allowedOrigins = [
     "http://localhost:3000",
+    "http://localhost:3001",
     "https://kanban-board-version2.netlify.app"
 ];
 
@@ -39,9 +42,37 @@ app.use("/api/task", authMiddleware, taskRoute);
 
 app.get("/", (req, res) => {
     res.send("<h1>Welcome to Cibanna Backend Project</h1>");
-  });
+});
 
 const port = process.env.PORT || 8000;
-app.listen(port, () => {
+const server = http.createServer(app);
+
+const io = new Server(server, {
+    cors: {
+        origin: allowedOrigins,
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        credentials: true
+    }
+});
+
+io.on("connection", (socket) => {
+    console.log(`User connected to websocket: ${socket.id}`);
+
+    socket.on("join-board", (boardId) => {
+        socket.join(boardId);
+        console.log(`Socket ${socket.id} joined board/room ${boardId}`);
+    });
+
+    socket.on("board-changed", (data) => {
+        // broadcast changes to all other clients viewing the same board
+        socket.to(data.boardId).emit("board-changed", data);
+    });
+
+    socket.on("disconnect", () => {
+        console.log(`User disconnected from websocket: ${socket.id}`);
+    });
+});
+
+server.listen(port, () => {
     console.log(`Server is running on port ${port}`);
-})
+});
