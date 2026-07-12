@@ -41,6 +41,7 @@ app.use(cors({
     credentials: true
 }));
 app.use(cookieParser());
+app.use("/uploads", express.static("uploads"));
 
 app.use("/api/auth", authRoute);  
 app.use("/api/board", authMiddleware, boardRoute);

@@ -1,4 +1,6 @@
 import Task from "../models/Task.js";
+import fs from "fs";
+import path from "path";
 
 const createTask = async (taskData) => {
     // Count tasks in column to set position
@@ -37,4 +39,51 @@ const reorderTasks = async (tasksData) => {
     return { status: 200, data: { message: "Tasks reordered successfully" } };
 };
 
-export default { createTask, getTasks, updateTask, deleteTask, reorderTasks };
+const addAttachment = async (taskId, file) => {
+    const task = await Task.findById(taskId);
+    if (!task) return { status: 404, data: { message: "Task not found" } };
+
+    const attachment = {
+        id: Date.now() + Math.random().toString(36).substr(2, 9),
+        name: file.originalname,
+        url: `http://localhost:8000/uploads/${file.filename}`,
+        fileType: file.mimetype,
+        size: file.size,
+        uploadedAt: new Date()
+    };
+
+    task.attachments.push(attachment);
+    await task.save();
+
+    const updatedTask = await Task.findById(taskId).populate("comments.user", "email");
+    return { status: 200, data: updatedTask };
+};
+
+const deleteAttachment = async (taskId, attachmentId) => {
+    const task = await Task.findById(taskId);
+    if (!task) return { status: 404, data: { message: "Task not found" } };
+
+    const attachment = task.attachments.find(att => att.id === attachmentId);
+    if (!attachment) return { status: 404, data: { message: "Attachment not found" } };
+
+    // Try deleting physical file
+    const filename = attachment.url.split("/uploads/")[1];
+    if (filename) {
+        const filePath = path.join("./uploads", filename);
+        if (fs.existsSync(filePath)) {
+            try {
+                fs.unlinkSync(filePath);
+            } catch (err) {
+                console.error("Error deleting local attachment file:", err);
+            }
+        }
+    }
+
+    task.attachments = task.attachments.filter(att => att.id !== attachmentId);
+    await task.save();
+
+    const updatedTask = await Task.findById(taskId).populate("comments.user", "email");
+    return { status: 200, data: updatedTask };
+};
+
+export default { createTask, getTasks, updateTask, deleteTask, reorderTasks, addAttachment, deleteAttachment };

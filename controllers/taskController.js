@@ -44,3 +44,24 @@ export const reorderTasks = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+export const addAttachment = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: "No file uploaded" });
+        }
+        const response = await taskService.addAttachment(req.params.id, req.file);
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+export const deleteAttachment = async (req, res) => {
+    try {
+        const response = await taskService.deleteAttachment(req.params.id, req.params.attachmentId);
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
