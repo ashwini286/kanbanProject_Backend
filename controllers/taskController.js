@@ -2,7 +2,7 @@ import taskService from "../services/taskService.js";
 
 export const createTask = async (req, res) => {
     try {
-        const response = await taskService.createTask(req.body);
+        const response = await taskService.createTask(req.body, req.user.id);
         res.status(response.status).json(response.data);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -20,7 +20,7 @@ export const getTasks = async (req, res) => {
 
 export const updateTask = async (req, res) => {
     try {
-        const response = await taskService.updateTask(req.params.id, req.body);
+        const response = await taskService.updateTask(req.params.id, req.body, req.user.id);
         res.status(response.status).json(response.data);
     } catch (error) {
         res.status(500).json({ message: error.message });
@@ -38,7 +38,7 @@ export const deleteTask = async (req, res) => {
 
 export const reorderTasks = async (req, res) => {
     try {
-        const response = await taskService.reorderTasks(req.body.tasks);
+        const response = await taskService.reorderTasks(req.body.tasks, req.user.id);
         res.status(response.status).json(response.data);
     } catch (error) {
         res.status(500).json({ message: error.message });

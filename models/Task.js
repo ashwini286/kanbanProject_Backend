@@ -31,6 +31,21 @@ const TaskSchema = new mongoose.Schema({
         fileType: { type: String },
         size: { type: Number },
         uploadedAt: { type: Date, default: Date.now }
+    }],
+    activities: [{
+        id: { type: String, required: true },
+        user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+        actionType: { 
+            type: String, 
+            enum: ["CREATE", "MOVE", "UPDATE_PRIORITY", "UPDATE_DUE_DATE", "CHECKLIST_ADD", "CHECKLIST_DELETE", "CHECKLIST_TOGGLE", "EDIT_TITLE", "EDIT_DESCRIPTION", "ADD_COMMENT"],
+            required: true 
+        },
+        details: {
+            from: { type: String },
+            to: { type: String },
+            itemText: { type: String }
+        },
+        createdAt: { type: Date, default: Date.now }
     }]
 }, { timestamps: true });
 

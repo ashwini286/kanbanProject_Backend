@@ -46,7 +46,8 @@ const getBoardDetails = async (userId, boardId) => {
   
   // Get tasks sorted by position
   const tasks = await Task.find({ board: boardId }).sort({ position: 1 })
-    .populate("comments.user", "email") // populate user details in comments
+    .populate("comments.user", "email")
+    .populate("activities.user", "email")
     .lean();
 
   // Map tasks to their columns

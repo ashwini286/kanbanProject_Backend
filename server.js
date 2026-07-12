@@ -26,7 +26,7 @@ app.use((req, res, next) => {
 const allowedOrigins = [
     "http://localhost:3000",
     "http://localhost:3001",
-    "https://kanban-board-version2.netlify.app"
+    "https://taskpilot-2026.vercel.app"
 ];
 
 app.use(cors({
