@@ -11,7 +11,7 @@ export const createTask = async (req, res) => {
 
 export const getTasks = async (req, res) => {
     try {
-        const response = await taskService.getTasks(req.params.boardId);
+        const response = await taskService.getTasks(req.params.columnId);
         res.status(response.status).json(response.data);
     } catch (error) {
         res.status(500).json({ message: error.message });
