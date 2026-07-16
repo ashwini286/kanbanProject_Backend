@@ -4,6 +4,7 @@ const BoardSchema = new mongoose.Schema({
     title: { type: String, required: true },
     owner: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
     members: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    position: { type: Number, default: 0 },
     backgroundSettings: {
         type: Map,
         of: String,

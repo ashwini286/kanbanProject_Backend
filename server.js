@@ -76,6 +76,15 @@ io.on("connection", (socket) => {
         socket.to(data.boardId).emit("board-changed", data);
     });
 
+    socket.on("join-workspace", ({ userId }) => {
+        socket.join(userId.toString());
+        console.log(`Socket ${socket.id} joined workspace room ${userId}`);
+    });
+
+    socket.on("workspace-changed", (data) => {
+        socket.to(data.userId.toString()).emit("workspace-changed", data);
+    });
+
     socket.on("disconnect", () => {
         console.log(`User disconnected from websocket: ${socket.id}`);
     });

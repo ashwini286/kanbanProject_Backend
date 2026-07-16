@@ -27,7 +27,7 @@ const getBoards = async (userId) => {
   // Get boards where user is owner or member
   const boards = await Board.find({
     $or: [{ owner: userId }, { members: userId }]
-  }).lean();
+  }).sort({ position: 1 }).lean();
   return { status: 200, data: boards };
 };
 
@@ -91,4 +91,19 @@ const deleteBoard = async (userId, boardId) => {
   return { status: 200, data: { message: "Board and all its columns/tasks deleted successfully" } };
 };
 
-export default { createBoard, getBoards, getBoardDetails, updateBoard, deleteBoard };
+const reorderBoards = async (userId, orderedBoardIds) => {
+  const bulkOps = orderedBoardIds.map((id, index) => ({
+    updateOne: {
+      filter: { _id: id, owner: userId },
+      update: { $set: { position: index } }
+    }
+  }));
+
+  if (bulkOps.length > 0) {
+    await Board.bulkWrite(bulkOps);
+  }
+
+  return { status: 200, data: { message: "Boards reordered successfully" } };
+};
+
+export default { createBoard, getBoards, getBoardDetails, updateBoard, deleteBoard, reorderBoards };

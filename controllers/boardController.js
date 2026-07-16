@@ -44,3 +44,12 @@ export const deleteBoard = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+export const reorderBoards = async (req, res) => {
+    try {
+        const response = await boardService.reorderBoards(req.user.id, req.body.orderedBoardIds);
+        res.status(response.status).json(response.data);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
