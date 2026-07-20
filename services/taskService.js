@@ -196,11 +196,10 @@ const addAttachment = async (taskId, file) => {
     const task = await Task.findById(taskId);
     if (!task) return { status: 404, data: { message: "Task not found" } };
 
-    const backendUrl = process.env.BACKEND_URL || "http://localhost:8000";
     const attachment = {
         id: Date.now() + Math.random().toString(36).substr(2, 9),
         name: file.originalname,
-        url: `${backendUrl}/uploads/${file.filename}`,
+        url: `/uploads/${file.filename}`,
         fileType: file.mimetype,
         size: file.size,
         uploadedAt: new Date()
