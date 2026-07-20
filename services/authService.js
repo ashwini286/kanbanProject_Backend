@@ -31,4 +31,22 @@ const login = async (email, password) => {
     return { status: 200, data: { token } };
 };
 
-export default { signup, login };
+const resetPassword = async (email, newPassword) => {
+    // Strong password validation
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+        return { 
+            status: 400, 
+            message: "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character." 
+        };
+    }
+
+    const user = await Users.findOne({ email });
+    if (!user) return { status: 404, message: "User not found" };
+
+    user.password = newPassword;
+    await user.save();
+    return { status: 200, message: "Password reset successfully" };
+};
+
+export default { signup, login, resetPassword };
