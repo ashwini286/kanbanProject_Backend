@@ -10,6 +10,12 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import http from "http";
 import { Server } from "socket.io";
+import { fileURLToPath } from "url";
+import path from "path";
+import fs from "fs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -41,7 +47,11 @@ app.use(cors({
     credentials: true
 }));
 app.use(cookieParser());
-app.use("/uploads", express.static("uploads"));
+
+// Ensure uploads folder exists
+const uploadsDir = path.join(__dirname, "uploads");
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+app.use("/uploads", express.static(uploadsDir));
 
 app.use("/api/auth", authRoute);  
 app.use("/api/board", authMiddleware, boardRoute);
