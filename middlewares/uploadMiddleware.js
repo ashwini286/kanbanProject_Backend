@@ -1,26 +1,36 @@
 import multer from "multer";
 import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import dotenv from "dotenv";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+dotenv.config();
 
-// Ensure uploads folder exists in the project root (absolute path)
-const uploadDir = path.join(__dirname, "..", "uploads");
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
+// Configure Cloudinary
+if (process.env.CLOUDINARY_URL) {
+  // Explicitly tell Cloudinary to parse the URL and populate the config
+  cloudinary.config(true);
+} else {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+  });
 }
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadDir);
+// Configure Cloudinary Storage
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'cibanna_kanban', // Folder in your Cloudinary dashboard
+    resource_type: 'auto', // Automatically detect image vs raw file (PDF, ZIP, etc)
+    public_id: (req, file) => {
+      const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
+      const ext = path.extname(file.originalname).toLowerCase();
+      const baseName = path.basename(file.originalname, ext).replace(/[^a-zA-Z0-9]/g, "_");
+      return `${file.fieldname}-${baseName}-${uniqueSuffix}`;
     },
-    filename: (req, file, cb) => {
-        const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-        const ext = path.extname(file.originalname).toLowerCase();
-        cb(null, file.fieldname + "-" + uniqueSuffix + ext);
-    }
+  },
 });
 
 // Whitelist of allowed file extensions and MIME types

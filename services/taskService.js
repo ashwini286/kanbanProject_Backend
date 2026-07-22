@@ -192,6 +192,20 @@ const reorderTasks = async (tasksData, userId) => {
     return { status: 200, data: { message: "Tasks reordered successfully" } };
 };
 
+import { v2 as cloudinary } from "cloudinary";
+import dotenv from "dotenv";
+dotenv.config();
+
+if (process.env.CLOUDINARY_URL) {
+    cloudinary.config(true);
+} else {
+    cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET
+    });
+}
+
 const addAttachment = async (taskId, file) => {
     const task = await Task.findById(taskId);
     if (!task) return { status: 404, data: { message: "Task not found" } };
@@ -199,7 +213,8 @@ const addAttachment = async (taskId, file) => {
     const attachment = {
         id: Date.now() + Math.random().toString(36).substr(2, 9),
         name: file.originalname,
-        url: `/uploads/${file.filename}`,
+        url: file.path || `/uploads/${file.filename}`, // Use Cloudinary path if available
+        publicId: file.filename, // Multer-storage-cloudinary sets filename to public_id
         fileType: file.mimetype,
         size: file.size,
         uploadedAt: new Date()
@@ -221,14 +236,24 @@ const deleteAttachment = async (taskId, attachmentId) => {
     const attachment = task.attachments.find(att => att.id === attachmentId);
     if (!attachment) return { status: 404, data: { message: "Attachment not found" } };
 
-    const filename = attachment.url.split("/uploads/")[1];
-    if (filename) {
-        const filePath = path.join("./uploads", filename);
-        if (fs.existsSync(filePath)) {
-            try {
-                fs.unlinkSync(filePath);
-            } catch (err) {
-                console.error("Error deleting local attachment file:", err);
+    if (attachment.publicId) {
+        // Delete from Cloudinary
+        try {
+            await cloudinary.uploader.destroy(attachment.publicId);
+        } catch (err) {
+            console.error("Error deleting attachment from Cloudinary:", err);
+        }
+    } else if (attachment.url && attachment.url.includes("/uploads/")) {
+        // Fallback for old local files
+        const filename = attachment.url.split("/uploads/")[1];
+        if (filename) {
+            const filePath = path.join("./uploads", filename);
+            if (fs.existsSync(filePath)) {
+                try {
+                    fs.unlinkSync(filePath);
+                } catch (err) {
+                    console.error("Error deleting local attachment file:", err);
+                }
             }
         }
     }
