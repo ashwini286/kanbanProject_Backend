@@ -13,6 +13,7 @@ import { Server } from "socket.io";
 import { fileURLToPath } from "url";
 import path from "path";
 import fs from "fs";
+import mongoSanitize from "express-mongo-sanitize";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,6 +24,10 @@ connectDB();
 
 const app = express();
 app.use(express.json());
+
+// Sanitize all incoming request bodies against MongoDB operator injection
+// e.g. { "email": { "$gt": "" } } → { "email": "" } (operators stripped)
+app.use(mongoSanitize());
 
 app.use((req, res, next) => {
     console.log(`[HTTP] ${req.method} ${req.url}`);
