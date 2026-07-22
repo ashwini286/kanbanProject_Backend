@@ -89,8 +89,8 @@ io.on("connection", (socket) => {
     });
 
     socket.on("board-changed", (data) => {
-        // broadcast changes to all other clients viewing the same board
-        socket.to(data.boardId).emit("board-changed", data);
+        // broadcast changes to all clients viewing the same board (including sender for optimistic skip logic)
+        io.in(data.boardId).emit("board-changed", data);
     });
 
     socket.on("join-workspace", ({ userId }) => {
@@ -99,7 +99,7 @@ io.on("connection", (socket) => {
     });
 
     socket.on("workspace-changed", (data) => {
-        socket.to(data.userId.toString()).emit("workspace-changed", data);
+        io.in(data.userId.toString()).emit("workspace-changed", data);
     });
 
     socket.on("disconnect", () => {
