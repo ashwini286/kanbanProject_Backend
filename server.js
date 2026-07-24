@@ -69,6 +69,15 @@ app.get("/", (req, res) => {
     res.send("<h1>Welcome to Cibanna Backend Project</h1>");
 });
 
+// Global Error Handler (Prevents HTML 500 pages)
+app.use((err, req, res, next) => {
+    console.error("Global Error Handler caught:", err.message || err);
+    res.status(err.status || 500).json({
+        success: false,
+        message: err.message || "Internal Server Error"
+    });
+});
+
 const port = process.env.PORT || 8000;
 const server = http.createServer(app);
 

@@ -11,8 +11,19 @@ router.put("/reorder/bulk", authMiddleware, reorderTasks);
 router.put("/:id", trimBody, maxLength("title", 200), updateTask);
 router.delete("/:id", deleteTask);
 
+// Attachment upload middleware wrapper with clean error handling
+const handleUpload = (req, res, next) => {
+    upload.single("file")(req, res, (err) => {
+        if (err) {
+            console.error("File upload error:", err.message);
+            return res.status(400).json({ message: err.message || "File upload failed" });
+        }
+        next();
+    });
+};
+
 // Attachment routes
-router.post("/:id/attachment", upload.single("file"), addAttachment);
+router.post("/:id/attachment", handleUpload, addAttachment);
 router.delete("/:id/attachment/:attachmentId", deleteAttachment);
 
 export default router;
