@@ -34,7 +34,7 @@ const storage = new CloudinaryStorage({
 });
 
 // Whitelist of allowed file extensions and MIME types
-const ALLOWED_EXTENSIONS = /\.(jpg|jpeg|png|gif|webp|pdf|doc|docx|xls|xlsx|ppt|pptx|txt|csv|zip|rar)$/i;
+const ALLOWED_EXTENSIONS = /\.(jpg|jpeg|png|gif|webp|pdf|doc|docx|xls|xlsx|ppt|pptx|txt|csv|zip|rar|mp4|mov|avi|mkv|webm|mp3|wav)$/i;
 const ALLOWED_MIMETYPES = [
     "image/jpeg", "image/png", "image/gif", "image/webp",
     "application/pdf",
@@ -45,7 +45,9 @@ const ALLOWED_MIMETYPES = [
     "application/vnd.ms-powerpoint",
     "application/vnd.openxmlformats-officedocument.presentationml.presentation",
     "text/plain", "text/csv",
-    "application/zip", "application/x-rar-compressed"
+    "application/zip", "application/x-rar-compressed",
+    "video/mp4", "video/quicktime", "video/x-msvideo", "video/x-matroska", "video/webm",
+    "audio/mpeg", "audio/wav", "audio/mp3", "audio/x-wav"
 ];
 
 const fileFilter = (req, file, cb) => {
@@ -56,7 +58,7 @@ const fileFilter = (req, file, cb) => {
     if (isExtAllowed && isMimeAllowed) {
         cb(null, true); // Accept file
     } else {
-        cb(new Error(`File type not allowed. Allowed types: images, PDF, Word, Excel, PowerPoint, text, CSV, ZIP`), false);
+        cb(new Error(`File type not allowed. Allowed types: Images, Videos, Audio, PDF, Word, Excel, PowerPoint, Text, CSV, ZIP`), false);
     }
 };
 
