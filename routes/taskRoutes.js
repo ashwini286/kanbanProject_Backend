@@ -15,8 +15,9 @@ router.delete("/:id", deleteTask);
 const handleUpload = (req, res, next) => {
     upload.single("file")(req, res, (err) => {
         if (err) {
-            console.error("File upload error:", err.message);
-            return res.status(400).json({ message: err.message || "File upload failed" });
+            console.error("File upload error details:", err);
+            const detailedMsg = err.message || err.error?.message || (typeof err === "object" ? JSON.stringify(err) : String(err));
+            return res.status(400).json({ message: detailedMsg || "File upload failed" });
         }
         next();
     });
