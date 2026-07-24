@@ -196,18 +196,12 @@ import { v2 as cloudinary } from "cloudinary";
 import dotenv from "dotenv";
 dotenv.config();
 
-const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
-const apiKey = process.env.CLOUDINARY_API_KEY?.trim();
-const apiSecret = process.env.CLOUDINARY_API_SECRET?.trim();
-
-if (cloudName && apiKey && apiSecret) {
-    cloudinary.config({
-        cloud_name: cloudName,
-        api_key: apiKey,
-        api_secret: apiSecret,
-        secure: true
-    });
-}
+cloudinary.config({
+    cloud_name: (process.env.CLOUDINARY_CLOUD_NAME || "").trim(),
+    api_key: (process.env.CLOUDINARY_API_KEY || "").trim(),
+    api_secret: (process.env.CLOUDINARY_API_SECRET || "").trim(),
+    secure: true
+});
 
 const addAttachment = async (taskId, file) => {
     const task = await Task.findById(taskId);
