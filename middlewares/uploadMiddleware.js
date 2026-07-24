@@ -6,16 +6,21 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Configure Cloudinary
-if (process.env.CLOUDINARY_URL) {
-  // Explicitly tell Cloudinary to parse the URL and populate the config
-  cloudinary.config(true);
-} else {
+// Configure Cloudinary using exact 3 environment variables from Render/Vercel dashboard
+const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
+const apiKey = process.env.CLOUDINARY_API_KEY?.trim();
+const apiSecret = process.env.CLOUDINARY_API_SECRET?.trim();
+
+if (cloudName && apiKey && apiSecret) {
   cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
+    cloud_name: cloudName,
+    api_key: apiKey,
+    api_secret: apiSecret,
+    secure: true
   });
+  console.log(`Cloudinary initialized successfully for cloud: ${cloudName}`);
+} else {
+  console.warn("⚠️ WARNING: Cloudinary credentials (CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET) missing or incomplete!");
 }
 
 // Configure Cloudinary Storage
